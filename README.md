@@ -5,7 +5,8 @@ backparse is a commonjs implementation that adds parse integration to Backbone m
 ## usage
 
 ```js
-// Load the `backparse` module instead of `backbone`
+// Load the `backparse` module instead of `backbone`. Pass in `appId`,
+// `apiKey` and `apiVersion` properties.
 var Backbone = require('backparse')({
 	appId: 'appidgoeshere',
 	apiKey: 'parserestapikeygoeshere',
