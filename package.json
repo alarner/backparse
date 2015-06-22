@@ -1,0 +1,20 @@
+{
+  "name": "backparse",
+  "version": "1.0.0",
+  "description": "CommonJS implementation that adds parse integration to Backbone models and collections",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "parse",
+    "backbone",
+    "commonjs"
+  ],
+  "author": "Aaron Larner",
+  "license": "ISC",
+  "dependencies": {
+    "backbone": "^1.2.1",
+    "jquery": "^2.1.4"
+  }
+}
