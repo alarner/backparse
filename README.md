@@ -53,5 +53,23 @@ user.login({
 	error: function(userModel, response) {
 		console.log('user was not logged in', response.responseJSON);
 	}
-})
+});
+
+user.me({
+	success: function(userModel) {
+		console.log('current user session is active');
+	},
+	error: function(userModel, response) {
+		console.log('current user session is not active', response.responseJSON);
+	}
+});
+
+user.logout({
+	success: function(userModel) {
+		console.log('user was logged out');
+	},
+	error: function(userModel, response) {
+		console.log('problem logging out the user', response.responseJSON);
+	}
+});
 ```

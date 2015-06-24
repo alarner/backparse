@@ -4,6 +4,7 @@ Backbone.$ = $;
 var _ = require('backbone/node_modules/underscore');
 
 var parseClassNameProperty = 'parseClassName';
+var sessionToken = window.localStorage.getItem('sessionToken');
 
 // Update collection parse
 var original_parse = Backbone.Collection.prototype.parse; 
@@ -39,9 +40,87 @@ var ajaxSync = Backbone.sync;
 module.exports = function(parseSettings) {
 	parseSettings.apiVersion = parseSettings.apiVersion || 1;
 
+	function getHeaders() {
+		var headers = {
+			"X-Parse-Application-Id": parseSettings.appId,
+			"X-Parse-REST-API-Key": parseSettings.apiKey
+		};
+		if(sessionToken) {
+			headers['X-Parse-Session-Token'] = sessionToken;
+		}
+
+		console.log('getHeaders', headers);
+
+		return headers;
+	}
+
 	// Update model parse
 	var ParseModel = {
+		me: function(options) {
+			var self = this;
+			options = options || {};
+			Backbone.$.ajax({
+				//data
+				contentType: "application/json",
+				processData: false,
+				dataType: 'json',
+				data: '',
+
+				//action
+				url: 'https://api.parse.com/' + parseSettings.apiVersion + '/users/me',
+				type: 'GET',
+
+				//authentication
+				headers: getHeaders()
+			})
+			.success(function(data) {
+				self.set(data);
+				if(options.success) {
+					options.success(self);
+				}
+			})
+			.error(function(response) {
+				if(options.error) {
+					options.error(self, response);
+				}
+			});
+		},
+		logout: function(options) {
+			var self = this;
+			sessionToken = null;
+			this.clear();
+			window.localStorage.removeItem('sessionToken');
+			options = options || {};
+			Backbone.$.ajax({
+				//data
+				contentType: "application/json",
+				processData: false,
+				dataType: 'json',
+				data: '',
+
+				//action
+				url: 'https://api.parse.com/' + parseSettings.apiVersion + '/logout',
+				type: 'POST',
+
+				//authentication
+				headers: getHeaders()
+			})
+			.success(function(data) {
+				self.set(data);
+				if(options.success) {
+					options.success(self);
+				}
+			})
+			.error(function(response) {
+				if(options.error) {
+					options.error(self, response);
+				}
+			});
+		},
 		login : function(credentials, options) {
+			var self = this;
+
+			options = options || {};
 
 			if(!this.__proto__.isUser) {
 				throw 'Cannot call `login` on non-user models. Set the `isUser` property to `true` on this model to make it a user model.';
@@ -54,8 +133,7 @@ module.exports = function(parseSettings) {
 			if(!credentials.hasOwnProperty('password')) {
 				throw 'Cannot call `login` without a `password`.';
 			}
-
-			var self = this;
+			
 			Backbone.$.ajax({
 				//data
 				contentType: "application/json",
@@ -70,12 +148,11 @@ module.exports = function(parseSettings) {
 				type: 'GET',
 
 				//authentication
-				headers: {
-					"X-Parse-Application-Id": parseSettings.appId,
-					"X-Parse-REST-API-Key": parseSettings.apiKey
-				}
+				headers: getHeaders()
 			})
 			.success(function(data) {
+				sessionToken = data.sessionToken;
+				window.localStorage.setItem('sessionToken', sessionToken);
 				self.set(data);
 				if(options.success) {
 					options.success(self);
@@ -126,10 +203,7 @@ module.exports = function(parseSettings) {
 			type: type,
 
 			//authentication
-			headers: {
-				"X-Parse-Application-Id": parseSettings.appId,
-				"X-Parse-REST-API-Key": parseSettings.apiKey
-			}
+			headers: getHeaders()
 		};
 
 		return $.ajax(_.extend(options, request));
