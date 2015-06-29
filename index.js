@@ -133,6 +133,9 @@ module.exports = function(parseSettings) {
 			if(!credentials.hasOwnProperty('password')) {
 				throw 'Cannot call `login` without a `password`.';
 			}
+
+			var headers = getHeaders();
+			delete headers['X-Parse-Session-Token'];
 			
 			Backbone.$.ajax({
 				//data
@@ -148,7 +151,7 @@ module.exports = function(parseSettings) {
 				type: 'GET',
 
 				//authentication
-				headers: getHeaders()
+				headers: headers
 			})
 			.success(function(data) {
 				sessionToken = data.sessionToken;
