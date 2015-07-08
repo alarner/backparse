@@ -85,9 +85,6 @@ module.exports = function(parseSettings) {
 		},
 		logout: function(options) {
 			var self = this;
-			sessionToken = null;
-			this.clear();
-			window.localStorage.removeItem('sessionToken');
 			options = options || {};
 			Backbone.$.ajax({
 				//data
@@ -108,6 +105,9 @@ module.exports = function(parseSettings) {
 				if(options.success) {
 					options.success(self);
 				}
+				sessionToken = null;
+				this.clear();
+				window.localStorage.removeItem('sessionToken');
 			})
 			.error(function(response) {
 				if(options.error) {
